@@ -1,7 +1,7 @@
-const supabase = window.supabase.createClient(
-  'https://squgzapymrjcozldeboe.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxdWd6YXB5bXJqY296bGRlYm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDkzNTQsImV4cCI6MjA5NTIyNTM1NH0.dlXZz77Dw9YSGGpJDsMNMJUfPqTe-vc8AlMbr6ayj1U'
-);
+const SUPABASE_URL = 'https://squgzapymrjcozldeboe.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxdWd6YXB5bXJqY296bGRlYm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDkzNTQsImV4cCI6MjA5NTIyNTM1NH0.dlXZz77Dw9YSGGpJDsMNMJUfPqTe-vc8AlMbr6ayj1U';
+
+let accessToken = null;
 
 const loginWrap = document.getElementById('login-wrap');
 const adminHeader = document.getElementById('admin-header');
@@ -14,12 +14,15 @@ async function showMessages() {
   messagesWrap.classList.add('visible');
   logoutBtn.style.display = 'inline-block';
 
-  const { data, error } = await supabase
-    .from('messages')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=*&order=created_at.desc`, {
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': `Bearer ${accessToken}`,
+    }
+  });
+  const data = await res.json();
 
-  if (error || !data.length) {
+  if (!Array.isArray(data) || data.length === 0) {
     messagesWrap.innerHTML = '<div class="empty-state">No messages yet.</div>';
     document.getElementById('message-count').textContent = '0 messages';
     return;
@@ -41,15 +44,9 @@ async function showMessages() {
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Check existing session
-supabase.auth.getSession().then(({ data: { session } }) => {
-  if (session) showMessages();
-});
-
-// Login form
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('login-btn');
@@ -58,22 +55,37 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   btn.textContent = 'Logging in...';
   errorEl.textContent = '';
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: document.getElementById('admin-email').value,
-    password: document.getElementById('admin-password').value,
-  });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: document.getElementById('admin-email').value,
+        password: document.getElementById('admin-password').value,
+      }),
+    });
 
-  if (error) {
-    errorEl.textContent = error.message;
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      errorEl.textContent = data.error_description || data.msg || 'Login failed.';
+      btn.disabled = false;
+      btn.textContent = 'Log in';
+    } else {
+      accessToken = data.access_token;
+      showMessages();
+    }
+  } catch (err) {
+    errorEl.textContent = 'Network error: ' + err.message;
     btn.disabled = false;
     btn.textContent = 'Log in';
-  } else {
-    showMessages();
   }
 });
 
-// Logout
-logoutBtn.addEventListener('click', async () => {
-  await supabase.auth.signOut();
+logoutBtn.addEventListener('click', () => {
+  accessToken = null;
   location.reload();
 });
