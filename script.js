@@ -10,27 +10,35 @@ document.getElementById('contact-form').addEventListener('submit', async (e) => 
   status.className = 'form-status';
   status.textContent = '';
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
-    method: 'POST',
-    headers: {
-      'apikey': ANON_KEY,
-      'Authorization': `Bearer ${ANON_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal',
-    },
-    body: JSON.stringify({
-      name: document.getElementById('name').value,
-      email: document.getElementById('email').value,
-      message: document.getElementById('message').value,
-    }),
-  });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': `Bearer ${ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value,
+      }),
+    });
 
-  if (!res.ok) {
-    status.textContent = 'Something went wrong. Please try again.';
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
     status.className = 'form-status error';
     btn.disabled = false;
     btn.textContent = 'Send Message';
-  } else {
+    return;
+  }
+
+  {
     const form = document.getElementById('contact-form');
     form.innerHTML = `
       <div class="form-success">
