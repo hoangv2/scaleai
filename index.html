@@ -134,7 +134,24 @@
     <div class="container contact-container">
       <h3 class="section-title">Get In Touch</h3>
       <p class="contact-sub">Have a project in mind or just want to say hello? I'd love to hear from you.</p>
-      <a href="mailto:vhoang2@gmail.com" class="btn btn-primary">vhoang2@gmail.com</a>
+      <form id="contact-form" class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">Send Message</button>
+        <p id="form-status" class="form-status"></p>
+      </form>
       <div class="social-links">
         <a href="https://github.com/hoangv2" target="_blank" rel="noopener">GitHub</a>
       </div>
@@ -145,6 +162,7 @@
     <p>© 2026 Viet Hoang. Built with care.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>

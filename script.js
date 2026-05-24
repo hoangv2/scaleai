@@ -1,3 +1,41 @@
+// Contact form → Supabase
+const supabase = window.supabase.createClient(
+  'https://squgzapymrjcozldeboe.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxdWd6YXB5bXJqY296bGRlYm9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDkzNTQsImV4cCI6MjA5NTIyNTM1NH0.dlXZz77Dw9YSGGpJDsMNMJUfPqTe-vc8AlMbr6ayj1U'
+);
+
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const status = document.getElementById('form-status');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  status.className = 'form-status';
+  status.textContent = '';
+
+  const { error } = await supabase.from('messages').insert({
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    message: document.getElementById('message').value,
+  });
+
+  if (error) {
+    status.textContent = 'Something went wrong. Please try again.';
+    status.className = 'form-status error';
+    btn.disabled = false;
+    btn.textContent = 'Send Message';
+  } else {
+    const form = document.getElementById('contact-form');
+    form.innerHTML = `
+      <div class="form-success">
+        <div class="form-success-icon">✓</div>
+        <h4>Message sent!</h4>
+        <p>Thanks for reaching out. I'll get back to you soon.</p>
+      </div>
+    `;
+  }
+});
+
 // Scroll-triggered fade-in for sections
 const observer = new IntersectionObserver(
   (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
