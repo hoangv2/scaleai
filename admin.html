@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Messages</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .login-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-card h2 { margin-bottom: 1.5rem; font-size: 1.5rem; }
+    .admin-header {
+      max-width: 1100px;
+      margin: 100px auto 2rem;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header h2 { font-size: 1.5rem; }
+    .messages-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+      display: none;
+    }
+    .messages-wrap.visible { display: block; }
+    .message-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .message-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .message-sender { font-weight: 600; }
+    .message-email { color: var(--accent); font-size: 0.85rem; }
+    .message-date { color: var(--text-muted); font-size: 0.8rem; }
+    .message-body { color: var(--text-muted); line-height: 1.6; }
+    .empty-state { text-align: center; color: var(--text-muted); padding: 4rem 0; }
+    #login-error { color: #f87171; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1em; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <span class="logo">VH Admin</span>
+      <button id="logout-btn" class="btn btn-secondary" style="display:none;font-size:0.85rem;padding:0.4rem 1rem;">Log out</button>
+    </div>
+  </nav>
+
+  <!-- Login -->
+  <div class="admin-wrap" id="login-wrap">
+    <div class="login-card">
+      <h2>Admin Login</h2>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="admin-email">Email</label>
+          <input type="email" id="admin-email" required placeholder="you@email.com" />
+        </div>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" required placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="login-btn" style="width:100%">Log in</button>
+        <p id="login-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="admin-header" id="admin-header" style="display:none">
+    <h2>Messages</h2>
+    <span id="message-count" style="color:var(--text-muted);font-size:0.9rem;"></span>
+  </div>
+  <div class="messages-wrap" id="messages-wrap"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
